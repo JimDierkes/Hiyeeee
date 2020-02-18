@@ -1,0 +1,69 @@
+export RG="cricket-sqlalwayson-zones-001-rg"
+export Location="eastus2"
+export PlsName="abi-sql-pls"
+export PlsVNet="adVNET"
+export PlsSubnet="sqlSubnet"
+export LbName="abi-sql-ilb"
+export LbFrontEndName="abi-sql-ilbfe1"
+
+
+az group create --name $RG --location $Location
+
+
+# Deploy AD template
+az group deployment create --resource-group $RG --template-uri https://raw.githubusercontent.com/JimDierkes/Hiyeeee/master/active-directory-new-domain-ha-2-dc-zones/azuredeploy.json \
+  --parameters adminUsername=$AdminUsername \
+  --parameters adminPassword=$AdminPassword \
+  --parameters dnsPrefix=$DnsPrefix \
+  --parameters domainName=$DomainName 
+
+
+az group deployment create --resource-group $RG --template-uri https://raw.githubusercontent.com/JimDierkes/Hiyeeee/master/301-sql-alwayson-md-ilb-zones/azuredeploy.json \
+  --parameters adminUsername=$AdminUsername \
+  --parameters adminPassword=$AdminPassword \
+  --parameters dnsPrefix=$DnsPrefix \
+  --parameters domainName=$DomainName 
+
+
+# Disable network policies for Private Link service source IP
+az network vnet subnet update \
+  --name $PlsSubnet \
+  --resource-group $RG \
+  --vnet-name $PlsVNet \
+  --disable-private-link-service-network-policies true
+
+# Create private link service
+az network private-link-service create \
+    --resource-group $RG \
+    --name $PlsName \
+    --vnet-name $PlsVNet \
+    --subnet $PlsSubnet \
+    --lb-name $LbName \
+    --lb-frontend-ip-configs $LbFrontEndName \
+    --location $Location
+
+
+
+export RG="cricket-sqlalwayson-rg"
+export PEVnet="bastion-vnet"
+export PESubnet="PESubnet"
+export PEName="abisqlalwayson-pe"
+export PLSResourceID="/subscriptions/f965680d-75b9-4150-bd8b-f6d3946aca79/resourceGroups/cricket-sqlalwayson-zones-rg/providers/Microsoft.Network/privateLinkServices/abi-sql-pls"
+
+
+az network vnet subnet update \
+--resource-group $RG \
+--vnet-name $PEVnet \
+--name $PESubnet \
+--disable-private-endpoint-network-policies true
+
+
+az network private-endpoint create \
+--resource-group $RG \
+--name $PEName \
+--vnet-name $PEVnet \
+--subnet $PESubnet \
+--private-connection-resource-id $PLSResourceID \
+--connection-name myPEConnectingPLS \
+--location southcentralus
+
