@@ -1,4 +1,4 @@
-export RG="cricket-sqlalwayson-zones-001-rg"
+export RG="cricket-sqlalwayson-zones-002-rg"
 export Location="eastus2"
 export PlsName="abi-sql-pls"
 export PlsVNet="adVNET"
@@ -12,6 +12,7 @@ az group create --name $RG --location $Location
 
 # Deploy AD template
 az group deployment create --resource-group $RG --template-uri https://raw.githubusercontent.com/JimDierkes/Hiyeeee/master/active-directory-new-domain-ha-2-dc-zones/azuredeploy.json \
+  --parameters location=$Location \
   --parameters adminUsername=$AdminUsername \
   --parameters adminPassword=$AdminPassword \
   --parameters dnsPrefix=$DnsPrefix \
@@ -19,6 +20,7 @@ az group deployment create --resource-group $RG --template-uri https://raw.githu
 
 
 az group deployment create --resource-group $RG --template-uri https://raw.githubusercontent.com/JimDierkes/Hiyeeee/master/301-sql-alwayson-md-ilb-zones/azuredeploy.json \
+  --parameters location=$Location \
   --parameters  namePrefix=$NamePrefix \
   --parameters  existingDomainName=$ExistingDomainName \
   --parameters  adminUsername=$AdminUsername \
