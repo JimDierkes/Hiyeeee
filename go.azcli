@@ -19,10 +19,15 @@ az group deployment create --resource-group $RG --template-uri https://raw.githu
 
 
 az group deployment create --resource-group $RG --template-uri https://raw.githubusercontent.com/JimDierkes/Hiyeeee/master/301-sql-alwayson-md-ilb-zones/azuredeploy.json \
-  --parameters adminUsername=$AdminUsername \
-  --parameters adminPassword=$AdminPassword \
-  --parameters dnsPrefix=$DnsPrefix \
-  --parameters domainName=$DomainName 
+  --parameters  namePrefix=$NamePrefix \
+  --parameters  existingDomainName=$ExistingDomainName \
+  --parameters  adminUsername=$AdminUsername \
+  --parameters  adminPassword=$AdminPassword \
+  --parameters  sqlServiceAccount=$SqlServiceAccount \
+  --parameters  sqlServicePassword=$SqlServicePassword \
+  --parameters  existingVirtualNetworkName=$ExistingVirtualNetworkName \
+  --parameters  existingVirtualNetworkRGName=$ExistingVirtualNetworkRGName \
+  --parameters  existingSubnetName=$ExistingSubnetName
 
 
 # Disable network policies for Private Link service source IP
