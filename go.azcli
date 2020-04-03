@@ -6,7 +6,10 @@ export PlsSubnet="sqlSubnet"
 export LbName="abi-sql-ilb"
 export LbFrontEndName="abi-sql-ilbfe1"
 
-
+export AdminUsername="adadmin"
+export AdminPassword=""
+export DnsPrefix="contoso.com"
+export DomainName="contoso"
 az group create --name $RG --location $Location
 
 
